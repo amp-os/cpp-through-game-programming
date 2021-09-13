@@ -1,0 +1,4 @@
+*.d
+*.slo
+*.lo
+.DS_STORE
