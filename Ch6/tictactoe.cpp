@@ -14,13 +14,27 @@ bool isLegal(const char* board, int move);
 int humanMove(const char* board);
 int computerMove(char* board, const char computer);
 void announceWinner(char winner, char computer, char human);
+int cornerOpening(const char* board);
+
+enum {	TOP_LEFT = 0,
+		TOP_CENTRE,
+		TOP_RIGHT,
+		MIDDLE_LEFT,
+		MIDDLE_CENTRE,
+		MIDDLE_RIGHT,
+		BOTTOM_LEFT,
+		BOTTOM_CENTRE,
+		BOTTOM_RIGHT,
+		TOTAL_SQUARES};
+		
+const char NO_ONE = '0';
 
 int main()
 {
 	// Set up game
 	std::cout << "WELCOME TO NOUGHTS AND CROSSES\n\n";
 	printInstructions();
-	char board[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+	char board[TOTAL_SQUARES] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
 	
 	// Determine who is first	
 	char human = humanPiece();
@@ -30,7 +44,8 @@ int main()
 	printBoard(board);
 	std::cout << "\n" << std::endl;
 	
-	while (winner(board) == '0')
+	// Game loop
+	while (winner(board) == NO_ONE)
 	{
 		if (turn == human)
 		{
@@ -60,11 +75,38 @@ void announceWinner(char winner, char computer, char human)
 		std::cout << "\nTie game!\n";
 }
 
+int movesMade(const char* board)
+{
+	int numMoves = 0;
+	for (int i = 0; i < TOTAL_SQUARES; i++)
+	{
+		if (board[i] != ' ')
+			numMoves++;
+	}
+	return numMoves;
+}
+
+int openingPosition(const char* board)
+{
+	if (movesMade(board) != 1) // if this is not the first move
+		return -1; // early escape
+	
+	int pos;
+	const int numCorners = 4;
+	int corners[numCorners] = {TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
+	for (int i = 0; i < TOTAL_SQUARES; i++)
+	{
+		if (board[i] != ' ')
+			pos = i;
+	}
+	return pos;
+}
+
 int computerMove(char* board, const char computer)
 {
 	int move = 0;
 	bool solved = false;
-	while (!solved && move < 9)
+	while (!solved && move < TOTAL_SQUARES)
 	{
 		if (isLegal(board, move))
 		{
@@ -78,7 +120,7 @@ int computerMove(char* board, const char computer)
 	if (!solved)
 	{
 		move = 0;
-		while (!solved && move < 9)
+		while (!solved && move < TOTAL_SQUARES)
 		{
 			if (isLegal(board, move))
 			{
@@ -92,9 +134,50 @@ int computerMove(char* board, const char computer)
 	}
 	if (!solved)
 	{
-		int bestMove[9] = {4, 0, 2, 6, 8, 1, 3, 5, 7};
+		int bestDefense[TOTAL_SQUARES] = {4, 0, 2, 6, 8, 1, 3, 5, 7};
+		int* bestMove = bestDefense;
+		
+		int defaultOpening[TOTAL_SQUARES] = {0, 8, 2, 6, 4, 1, 3, 5, 7};
+		
+		// Defend against the corners opening
+		
+		if (computer == 'O') // if the computer moves second
+		{
+			static int pos;
+			if (movesMade(board) == 1) // if it is the first turn
+				pos = openingPosition(board); // get the first move
+			if (movesMade(board) == 3) // if it is the computer's second move
+			{
+				switch (pos)
+				{
+					case TOP_LEFT:
+						bestMove[1] = TOP_CENTRE;
+						bestMove[2] = MIDDLE_LEFT;
+						break;
+					case TOP_RIGHT:
+						bestMove[1] = TOP_CENTRE;
+						bestMove[2] = MIDDLE_RIGHT;
+						break;
+					case BOTTOM_LEFT:
+						bestMove[1] = BOTTOM_CENTRE;
+						bestMove[2] = MIDDLE_RIGHT;
+						break;
+					case BOTTOM_RIGHT:
+						bestMove[1] = BOTTOM_CENTRE;
+						bestMove[2] = MIDDLE_LEFT;
+						break;
+					default:
+						break; // do not change defense
+				}
+			}
+		}
+		else if (computer == 'X') // Play corners opening
+		{
+			bestMove = defaultOpening;
+		}
+		
 		move = 0;
-		while(!solved && move < 9)
+		while(!solved && move < TOTAL_SQUARES)
 		{
 			if (isLegal(board, bestMove[move]))
 			{
@@ -143,15 +226,16 @@ int humanMove(const char* board)
 
 char winner(const char* board)
 {
-	const int winning[8][3] = {	{0, 1, 2},
-								{3, 4, 5},
-								{6, 7, 8},
-								{0, 4, 8},
-								{2, 4, 6},
-								{0, 3, 6},
-								{1, 4, 7},
-								{2, 5, 8}};
 	const int totalWinning = 8;
+	const int winning[totalWinning][3] = {	{0, 1, 2},
+											{3, 4, 5},
+											{6, 7, 8},
+											{0, 4, 8},
+											{2, 4, 6},
+											{0, 3, 6},
+											{1, 4, 7},
+											{2, 5, 8}};
+
 	for (int i = 0; i < totalWinning; i++)
 	{
 		if ((board[winning[i][0]] != ' ') &&
@@ -161,7 +245,7 @@ char winner(const char* board)
 	}
 	
 	bool tie = true;
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < TOTAL_SQUARES; i++)
 	{
 		if (board[i] == ' ')
 			tie = false;
@@ -201,9 +285,9 @@ char askYesNo(std::string question)
 void printInstructions()
 {
 	std::cout << "Select a square by using the numbers 1-9:\n\n";
-	char instructionBoard[9] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+	char instructionBoard[TOTAL_SQUARES] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 	printBoard(instructionBoard);
-	std::cout << std::endl;
+	std::cout << "\n" << std::endl;
 }
 
 void printBoard(const char* board)
