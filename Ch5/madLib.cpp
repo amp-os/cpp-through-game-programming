@@ -5,7 +5,7 @@
 
 std::string askText(std::string prompt);
 int askNumber(std::string prompt);
-void tellStory(std::string name, std::string noun, int number, std::string bodyPart, std::string verb);
+void tellStory(std::string& name, std::string& noun, int& number, std::string& bodyPart, std::string& verb);
 
 int main()
 {
@@ -38,7 +38,7 @@ int askNumber(std::string prompt)
 	return num;
 }
 
-void tellStory(std::string name, std::string noun, int number, std::string bodyPart, std::string verb)
+void tellStory(std::string& name, std::string& noun, int& number, std::string& bodyPart, std::string& verb)
 {
 	std::cout << "\nHere's your story:\n";
 	std::cout << "The famous explorer ";
