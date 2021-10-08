@@ -7,17 +7,27 @@ class Critter
 private:
 	int m_Hunger;
 	int m_Boredom;
+	static int s_Total;
 public:
 	Critter(int hunger = 0, int boredom = 5);
+	static int GetTotal();
 	void Greet();
 	void SetHunger(int h);
 	int GetHunger() const;
 };
 
+int Critter::s_Total = 0;
+
 Critter::Critter(int hunger, int boredom) :
 	m_Hunger(hunger), m_Boredom(boredom)
 {
 	std::cout << "New critter created" << std::endl;
+	s_Total++;
+}
+
+int Critter::GetTotal()
+{
+	return s_Total;
 }
 
 int Critter::GetHunger() const
@@ -55,6 +65,8 @@ int main()
 	
 	Critter crit3(7, 6);
 	crit3.Greet();
+	
+	std::cout << Critter::GetTotal() << "\n";
 	
 	return 0;
 }
