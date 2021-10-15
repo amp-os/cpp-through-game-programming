@@ -8,7 +8,7 @@ class Critter
 {
 public:
 	Critter(const std::string& name = "");
-	std::string GetName() const;
+	const std::string& GetName() const;
 private:
 	std::string m_Name;
 };
@@ -17,7 +17,7 @@ Critter::Critter(const std::string& name):
 	m_Name(name)
 {}
 
-inline std::string Critter::GetName() const
+inline const std::string& Critter::GetName() const
 {
 	return m_Name;
 }
@@ -29,7 +29,7 @@ public:
 	void Add(const Critter& aCritter);
 	void RollCall() const;
 private:
-	std::vector<Critter> m_Critters;
+	std::vector<Critter> m_Critters; // Note creates copies as is a vector of objects not pointers
 };
 
 Farm::Farm(int spaces)
