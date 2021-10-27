@@ -4,7 +4,7 @@
 
 class Enemy
 {
-public:
+protected:
 	int m_Damage;
 	
 public:
@@ -14,7 +14,9 @@ public:
 
 Enemy::Enemy()
 	: m_Damage(10)
-{}
+{
+	std::cout << "Enemy constructor called.\n";
+}
 
 void Enemy::Attack() const
 {
@@ -33,7 +35,9 @@ public:
 
 Boss::Boss()
 	: m_DamageMultiplier(3)
-{}
+{
+	std::cout << "Boss constructor called.\n";
+}
 
 void Boss::SpecialAttack() const
 {
